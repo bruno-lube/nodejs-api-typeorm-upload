@@ -20,7 +20,8 @@ class ImportTransactionsService {
 
     const file = await fs.promises.readFile(filePath, { encoding: 'utf-8' });
 
-    const lines = file.split('\r\n');
+    const linuxFile = file.indexOf('\r\n') < 0;
+    const lines = linuxFile ? file.split('\n') : file.split('\r\n');
 
     const registers = [];
 
