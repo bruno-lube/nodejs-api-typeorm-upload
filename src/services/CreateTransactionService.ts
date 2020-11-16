@@ -1,4 +1,3 @@
-import { getCustomRepository } from 'typeorm';
 import AppError from '../errors/AppError';
 import Category from '../models/Category';
 
@@ -6,15 +5,10 @@ import Transaction from '../models/Transaction';
 import TransactionCategoriesRepository from '../repositories/TransactionCategoriesRepository';
 import TransactionsRepository from '../repositories/TransactionsRepository';
 
-enum TransactionType {
-  INCOME = 'income',
-  OUTCOME = 'outcome',
-}
-
 interface RequestDto {
   title: string;
   value: number;
-  type: TransactionType;
+  type: string;
   category: string;
 }
 
@@ -23,10 +17,8 @@ class CreateTransactionService {
 
   transactionsRepository: TransactionsRepository;
 
-  constructor(transactionsRepository: TransactionsRepository) {
-    this.categoriesRepository = getCustomRepository(
-      TransactionCategoriesRepository,
-    );
+  constructor(transactionsRepository: TransactionsRepository, transactionCategoriesRepository: TransactionCategoriesRepository) {
+    this.categoriesRepository = transactionCategoriesRepository;
     this.transactionsRepository = transactionsRepository;
   }
 
@@ -37,10 +29,14 @@ class CreateTransactionService {
     category,
   }: RequestDto): Promise<Transaction> {
     if (
-      type === TransactionType.OUTCOME &&
+      type === 'outcome' &&
       (await this.transactionsRepository.getBalance()).total - value < 0
     ) {
       throw new AppError('Insufficient funds available', 400);
+    }
+
+    if (type !== 'income' && type !== 'outcome') {
+      throw new AppError('Transaction type value must be income or outcome', 400);
     }
 
     let categoryExists:

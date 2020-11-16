@@ -9,7 +9,7 @@ export class CreateRelationshipTransactionCategory1605402295230
       new TableForeignKey({
         name: 'fk_transaction_categories_id',
         columnNames: ['category_id'],
-        referencedTableName: 'transaction_categories',
+        referencedTableName: 'categories',
         referencedColumnNames: ['id'],
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
